@@ -1,4 +1,4 @@
-var board, currentPlayer;
+var board, currentPlayer, turns;
 
 var resetBoard = function () {
   board = [
@@ -13,6 +13,7 @@ var resetBoard = function () {
   ];
 
   currentPlayer = 'wht'
+  turns = 0;
 };
 
 var attemptMove = function(row1, col1, row2, col2) {
@@ -21,71 +22,80 @@ var attemptMove = function(row1, col1, row2, col2) {
   // must be an empty space
   // must be diagonal
   // must be current players piece
-  if (currentPlayer == 'wht') {
-    if (board[row1][col1] == currentPlayer) {
-      if (board[row2][col2] == ' X ') {
-        if (row2 - row1 == 1) {
-          if (col2 - col1 == 1 || col1 - col2 == 1) {
-            makeMove(row1, col1, row2, col2);
-          }
-        } 
-        else if (row2 - row1 == 2) {
-          if (col2 - col1 == 2) {
-            //check if piece in between
-            if (board[row1 + 1][col1 + 1] == 'red') {
-              makeMove(row1, col1, row2, col2);
-              removePiece(row1 + 1, col1 + 1);
-            }
-          } 
-          else if (col1 - col2 == 2) {
-            //check if piece in between
-            if (board[row1 + 1][col1 - 1] == 'red') {
-              makeMove(row1, col1, row2, col2);
-              removePiece(row1 + 1, col1 - 1);
-            }
-          }
-        }
+  if (currentPlayer == 'wht' && board[row1][col1] == currentPlayer
+      && board[row2][col2] == ' X ') 
+  {
+    if (row2 - row1 == 1 && (col2 - col1 == 1 || col1 - col2 == 1)) {
+      makeMove(row1, col1, row2, col2);
+    } 
+    else if (row2 - row1 == 2) {
+      if (col2 - col1 == 2 && board[row1 + 1][col1 + 1] == 'red') {
+        removePiece(row1 + 1, col1 + 1);
+        makeMove(row1, col1, row2, col2);
+      } 
+      else if (col1 - col2 == 2 && board[row1 + 1][col1 - 1] == 'red') {
+        removePiece(row1 + 1, col1 - 1);
+        makeMove(row1, col1, row2, col2);
+      } 
+      else {
+        // invalid move
+        $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
+      }
+    } 
+    else {
+      // invalid move
+      $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
+    }
+  } 
+  // row1 = 6 col1 = 3 row2 = 4 col2 = 1
+  else if (currentPlayer == 'red' && board[row1][col1] == currentPlayer
+      && board[row2][col2] == ' X ') 
+  {
+    if (row2 - row1 == -1 && (col2 - col1 == 1 || col1 - col2 == 1)) {
+      makeMove(row1, col1, row2, col2);
+    } 
+    else if (row2 - row1 == -2) {
+      if (col2 - col1 == 2 && board[row1 - 1][col1 + 1] == 'wht') {
+        removePiece(row1 - 1, col1 + 1);
+        makeMove(row1, col1, row2, col2);
+      } 
+      else if (col1 - col2 == 2 && board[row1 - 1][col1 - 1] == 'wht') {
+        removePiece(row1 - 1, col1 - 1);
+        makeMove(row1, col1, row2, col2);
+      }
+      else {
+        // invalid move
+        console.log("THIS IS 1 ERROR");
+        $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
       }
     }
-  }
-  else {
-    if (board[row1][col1] == currentPlayer) {
-      if (board[row2][col2] == ' X ') {
-        if (row2 - row1 == -1) {
-          if (col2 - col1 == 1 || col1 - col2 == 1) {
-            makeMove(row1, col1, row2, col2);
-          }
-        } 
-        else if (row2 - row1 == -2) {
-          if (col2 - col1 == 2) {
-            //check if piece in between
-            if (board[row1 - 1][col1 + 1] == 'wht') {
-              makeMove(row1, col1, row2, col2);
-              removePiece(row1 - 1, col1 + 1);
-            }
-          } 
-          else if (col1 - col2 == 2) {
-            //check if piece in between
-            if (board[row1 - 1][col1 - 1] == 'wht') {
-              makeMove(row1, col1, row2, col2);
-              removePiece(row1 - 1, col1 - 1);
-            }
-          }
-        }
-      }
+    else {
+      // invalid move
+      console.log("THIS IS 2 ERROR");
+      $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
     }
+  } else {
+    // invalid move
+    console.log("THIS IS 3 ERROR");
+    $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
   }
 };
+
+
 
 var makeMove = function(row1, col1, row2, col2) {
   // must change the location of the piece and also change current player
   board[row2][col2] = currentPlayer;
   board[row1][col1] = ' X ';
+  turns++;
   changePlayer();
+  $(document).trigger('boardChange', [board, turns, currentPlayer]);
 };
 
 var removePiece = function(row, col) {
+  var taken = board[row][col];
   board[row][col] = " X ";
+  $(document).trigger('pieceTaken', [currentPlayer, taken, row, col])
 };
 
 var changePlayer = function() {

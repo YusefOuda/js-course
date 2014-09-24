@@ -65,18 +65,13 @@ var attemptMove = function(row1, col1, row2, col2) {
       }
       else {
         // invalid move
-        console.log("THIS IS 1 ERROR");
         $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
       }
     }
     else {
-      // invalid move
-      console.log("THIS IS 2 ERROR");
       $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
     }
   } else {
-    // invalid move
-    console.log("THIS IS 3 ERROR");
     $(document).trigger('invalidMove', 'Invalid Move. Try Again.');
   }
 };
